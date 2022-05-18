@@ -286,6 +286,7 @@ void Logcat::EnsureLogWatchDog() {
 }
 
 void Logcat::Run() {
+    /*
     constexpr size_t tail_after_crash = 10U;
     size_t tail = 0;
     RefreshFd(true);
@@ -318,7 +319,7 @@ void Logcat::Run() {
             if (modules_print_count_ >= kMaxLogSize) [[unlikely]] RefreshFd(false);
         }
 
-        //OnCrash(errno);
+        OnCrash(errno);*/
     }
 }
 
