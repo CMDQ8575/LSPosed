@@ -197,18 +197,18 @@ void Logcat::OnCrash(int err) {
     static size_t kLogdCrashCount = 0;
     static size_t kLogdRestartWait = 1 << 3;
     if (++kLogdCrashCount >= kLogdRestartWait) {
-        //Log("\nLogd crashed too many times, trying manually start...\n");
-        //__system_property_set("ctl.restart", "logd");
+        Log("\nLogd crashed too many times, trying manually start...\n");
+        __system_property_set("ctl.restart", "logd");
         if (kLogdRestartWait < max_restart_logd_wait) {
             kLogdRestartWait <<= 1;
         } else {
             kLogdCrashCount = 0;
         }
     } else {
-        //Log("\nLogd maybe crashed (err="s + strerror(err) + "), retrying in 1s...\n");
+        Log("\nLogd maybe crashed (err="s + strerror(err) + "), retrying in 1s...\n");
     }
 
-    std::this_thread::sleep_for(9999999s);
+    std::this_thread::sleep_for(1s);
 }
 
 void Logcat::ProcessBuffer(struct log_msg *buf) {
@@ -310,14 +310,13 @@ void Logcat::Run() {
         struct log_msg msg{};
 
         while (true) {
-            if (android_logger_list_read(logger_list.get(), &msg) <= 0) [[unlikely]] break;
-
-            ProcessBuffer(&msg);
+            if (android_logger_list_read(logger_list.get(), &msg) > 0)
+                ProcessBuffer(&msg);
 
             if (verbose_print_count_ >= kMaxLogSize) [[unlikely]] RefreshFd(true);
             if (modules_print_count_ >= kMaxLogSize) [[unlikely]] RefreshFd(false);
         }
-        OnCrash(errno);
+        //OnCrash(errno);
     }
 }
 
